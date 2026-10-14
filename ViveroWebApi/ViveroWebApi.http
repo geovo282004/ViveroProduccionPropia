@@ -1,0 +1,6 @@
+@ViveroWebApi_HostAddress = http://localhost:5166
+
+GET {{ViveroWebApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

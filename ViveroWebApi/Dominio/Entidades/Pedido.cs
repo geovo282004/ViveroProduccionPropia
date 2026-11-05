@@ -30,7 +30,7 @@ namespace ViveroWebApi.Dominio.Entidades
             linea.Producto = producto;
             linea.Cantidad = cantidad;
             linea.PrecioUnitario = producto.Precio * (1 - Cliente.Descuento(producto));
-            linea.CalcularSubtotal();
+            linea.Subtotal = linea.CalcularSubtotal();
 
             Lineas.Add(linea);
             CalcularTotal();

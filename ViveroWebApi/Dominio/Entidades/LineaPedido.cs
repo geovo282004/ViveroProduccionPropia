@@ -18,8 +18,10 @@ namespace ViveroWebApi.Dominio.Entidades
 
         // Cantidad que esta línea logró reservar.
         // Solo se puede modificar desde esta clase.
-        public int CantidadReservada { get; private set; }
+        public int CantidadComprometida { get; private set; }
 
+        public decimal Subtotal {get;set;} 
+        
         // Calcula el subtotal multiplicando el precio por la cantidad solicitada.
         public decimal CalcularSubtotal()
         {
@@ -34,24 +36,24 @@ namespace ViveroWebApi.Dominio.Entidades
 
             if (disponible >= Cantidad)
             {
-                CantidadReservada = Cantidad;
+                CantidadComprometida = Cantidad;
             }
             else
             {
-                CantidadReservada = disponible;
+                CantidadComprometida = disponible;
             }
         }
 
         // Indica si se pudo reservar toda la cantidad solicitada.
         public bool EstaCompleta()
         {
-            return CantidadReservada == Cantidad;
+            return CantidadComprometida == Cantidad;
         }
 
         // Libera la cantidad registrada como reservada en esta línea.
         public void LiberarReserva()
         {
-            CantidadReservada = 0;
+            CantidadComprometida = 0;
         }
     }
 }

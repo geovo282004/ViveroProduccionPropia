@@ -7,6 +7,13 @@ namespace ViveroWebApi.Dominio.Entidades
     public abstract class Producto
 
     {
+        protected Producto(string codigo, string nombre, decimal precio)
+        {
+            Codigo = codigo;
+            Nombre = nombre;
+            Precio = precio;
+            ActivoCatalogo = true;
+        }
         private string _codigo = string.Empty;   // la caja fuerte (privada)
 
         public string Codigo                      // la puerta

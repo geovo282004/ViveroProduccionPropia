@@ -1,25 +1,68 @@
+using ViveroWebApi.Dominio.Enumeraciones;
+using ViveroWebApi.Dominio.Excepciones;
+
 namespace ViveroWebApi.Dominio.Entidades
 {
-    public class Insumo : Producto
+    public class Insumo : ProductoConStock
     {
-    public string IdInsumo { get; set; } = string.Empty;
-    public string UnidadMedida { get; set; } = string.Empty;
-    public int CantidadDisponible { get; set; }
-    public decimal CostoProveedor { get; set; }
-    public string Estado { get; set; } = string.Empty;
+private decimal _costoProveedor;
 
-    public  override int Disponibilidad()
+    public Insumo(string codigo, string nombre, decimal precio, int cantidadDisponible,
+            string unidadMedida, decimal costoProveedor, DateTime? fechaVencimiento)
+        : base(codigo, nombre, precio, cantidadDisponible)
+        {
+            UnidadMedida = unidadMedida;
+            CostoProveedor = costoProveedor;
+            FechaVencimiento = fechaVencimiento;    
+        }
+
+    public  override TipoProducto Tipo
     {
-        return CantidadDisponible;
+        get { return TipoProducto.Insumo; }
     }
 
-    public void ActualizarStock(int nuevoStock)
+    public string UnidadMedida { get;set; } = string.Empty;
+
+    public decimal CostoProveedor
     {
-        CantidadDisponible = nuevoStock;
+        get { return _costoProveedor; }
+        set
+        {
+            if (value < 0)
+                throw new DatoInvalidoException("El costo del proveedor no puede ser negativo.");
+            _costoProveedor = value;
+        }
+    }
+    public DateTime? FechaVencimiento { get;  set; }
+    public bool EstaVencido()
+    {
+        if (FechaVencimiento == null)
+            return false;
+        return DateTime.Today > FechaVencimiento.Value;
     }
 
+    public EstadoInsumo Estado
+    {
+        get
+        {
+            if (EstaVencido())
+                return EstadoInsumo.Vencido;
+            if (CantidadDisponible == 0)
+                return EstadoInsumo.Agotado;
+            return EstadoInsumo.Disponible;
+        }
+    }
+        public override int Disponibilidad()
+        {
+        if (EstaVencido())
+                return 0;
+            return base.Disponibilidad();
+        }
     }
 }
+
+
+
 
 
 

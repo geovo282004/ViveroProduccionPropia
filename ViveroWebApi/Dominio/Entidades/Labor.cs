@@ -2,15 +2,14 @@ using ViveroWebApi.Dominio.Excepciones;
 
 namespace ViveroWebApi.Dominio.Entidades
 {
-    // Tarea de mantenimiento que se repite cada cierto número de días (riego, poda, abono...).
-    // Un Lote "tiene" labores (composición): una labor no existe sin su lote.
+    // Tarea que se repite cada cierto número de días (riego, poda...).
+    // Un lote tiene labores.
     public class Labor
     {
         private string _descripcion = string.Empty;
         private int _periodicidadDias;
 
-        // fechaBase es el día desde el cual se empieza a contar: la primera vez que toca
-        // hacer la labor será fechaBase + periodicidadDias.
+        // La primera vez que toca es fechaBase + periodicidadDias.
         public Labor(int idLabor, string descripcion, int periodicidadDias, DateTime fechaBase)
         {
             IdLabor = idLabor;
@@ -43,19 +42,18 @@ namespace ViveroWebApi.Dominio.Entidades
             }
         }
 
-        // null mientras la labor nunca se haya realizado.
+        // null si nunca se ha realizado.
         public DateTime? FechaUltimaRealizacion { get; private set; }
 
         public DateTime FechaProxima { get; private set; }
 
-        // Una labor está vencida si hoy ya pasó la fecha en la que tocaba hacerla.
+        // Está vencida si hoy ya pasó la fecha próxima.
         public bool EstaVencida()
         {
             return DateTime.Today > FechaProxima;
         }
 
-        // Según el documento de dominio, una labor es crítica si lleva vencida
-        // más de la mitad de su periodicidad.
+        // Es crítica si lleva vencida más de la mitad de su periodicidad.
         public bool EsCritica()
         {
             if (!EstaVencida())
@@ -64,7 +62,7 @@ namespace ViveroWebApi.Dominio.Entidades
             return diasVencida > PeriodicidadDias / 2.0;
         }
 
-        // Guarda cuándo se hizo y calcula la próxima vez sumando la periodicidad en días.
+        // Guarda la fecha y calcula la próxima sumando los días.
         public void RegistrarRealizacion(DateTime fechaRealizacion)
         {
             FechaUltimaRealizacion = fechaRealizacion.Date;

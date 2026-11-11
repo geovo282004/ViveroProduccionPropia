@@ -3,22 +3,22 @@ using ViveroWebApi.Dominio.Excepciones;
 
 namespace ViveroWebApi.Dominio.Entidades
 {
-    // Una Especie ES un Producto (herencia), por eso puede venderse en un pedido.
-    // Su Codigo es el id y su Nombre es el nombre común: no se repiten, ya vienen del padre.
-    // Una Especie TIENE lotes (composición).
+    // Una especie es un producto, por eso se puede vender en un pedido.
+    // Su Codigo es el id y su Nombre es el nombre común (vienen de Producto).
+    // Una especie tiene lotes.
     public class Especie : Producto
     {
         private string _nombreCientifico = string.Empty;
 
-        // Diccionario tamaño de matera -> precio. Así el precio se busca sin usar if.
+        // Precio según el tamaño de matera.
         private readonly Dictionary<TamanioMatera, decimal> _precios = new Dictionary<TamanioMatera, decimal>();
 
-        // Lista privada: nadie desde afuera puede agregar o borrar lotes sin control.
+        // Lista privada para que nadie agregue lotes sin control.
         private readonly List<Lote> _lotes = new List<Lote>();
 
         public Especie(string codigo, string nombre, string nombreCientifico,
                        decimal precioPequena, decimal precioMediana, decimal precioGrande)
-            : base(codigo, nombre, precioPequena)   // el precio base del producto es el de la matera pequeña
+            : base(codigo, nombre, precioPequena)   // el precio base es el de la matera pequeña
         {
             NombreCientifico = nombreCientifico;
             AsignarPrecios(precioPequena, precioMediana, precioGrande);
@@ -40,23 +40,23 @@ namespace ViveroWebApi.Dominio.Entidades
             }
         }
 
-        // Desde afuera la lista es de solo lectura; para agregar se usa AgregarLote.
+        // Solo lectura; para agregar se usa AgregarLote.
         public IReadOnlyList<Lote> Lotes
         {
             get { return _lotes.AsReadOnly(); }
         }
 
-        // Precio de la planta según el tamaño de matera del lote.
+        // Precio según el tamaño de matera.
         public decimal CalcularPrecio(TamanioMatera tamanio)
         {
             return _precios[tamanio];
         }
 
-        // Cambia los tres precios a la vez, validando que tengan sentido.
+        // Cambia los tres precios.
         public void ActualizarPrecios(decimal precioPequena, decimal precioMediana, decimal precioGrande)
         {
             AsignarPrecios(precioPequena, precioMediana, precioGrande);
-            ActualizarPrecio(precioPequena);   // mantiene el precio base del producto al día
+            ActualizarPrecio(precioPequena);   // actualiza el precio base
         }
 
         private void AsignarPrecios(decimal precioPequena, decimal precioMediana, decimal precioGrande)
@@ -80,14 +80,13 @@ namespace ViveroWebApi.Dominio.Entidades
             _lotes.Add(lote);
         }
 
-        // Busca un lote de esta especie. Devuelve null si no existe (el servicio decide el 404).
+        // Devuelve null si el lote no existe.
         public Lote? ObtenerLote(string idLote)
         {
             return _lotes.FirstOrDefault(l => l.IdLote == idLote);
         }
 
-        // Polimorfismo: Insumo y Herramienta devuelven lo de bodega; la Especie suma
-        // solo lo disponible de los lotes que están en estado Listo.
+        // Suma lo disponible de los lotes que están en estado Listo.
         public override int Disponibilidad()
         {
             int total = 0;

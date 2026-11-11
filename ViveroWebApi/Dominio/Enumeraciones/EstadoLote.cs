@@ -1,12 +1,11 @@
 namespace ViveroWebApi.Dominio.Enumeraciones
 {
-    // Estados posibles de un lote. Antes eran textos ("Listo"); con enum el compilador
-    // avisa si alguien escribe un estado que no existe.
+    // Estados de un lote.
     public enum EstadoLote
     {
-        EnCrecimiento,   // sembrado, aún no está listo para vender
-        Listo,           // sus plantas vivas ya se pueden vender
-        EnRevision,      // murió más del 30 %: no se vende hasta revisarlo
-        Descartado       // se perdió por completo
+        EnCrecimiento,   // todavía no se puede vender
+        Listo,           // ya se puede vender
+        EnRevision,      // murió más del 30 %
+        Descartado       // se perdió el lote
     }
 }

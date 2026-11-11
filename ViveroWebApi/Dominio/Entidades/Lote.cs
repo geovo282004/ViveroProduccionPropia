@@ -3,11 +3,11 @@ using ViveroWebApi.Dominio.Excepciones;
 
 namespace ViveroWebApi.Dominio.Entidades
 {
-    // Grupo de plantas de una especie sembradas el mismo día en la misma matera.
-    // Un Lote "tiene" labores (composición) y vive dentro de una Especie.
+    // Grupo de plantas sembradas el mismo día en la misma matera.
+    // Un lote tiene labores y vive dentro de una especie.
     public class Lote
     {
-        // Si muere más de este porcentaje de lo sembrado, el lote pasa a revisión.
+        // Si muere más de este porcentaje, el lote pasa a revisión.
         private const double LimiteMortalidad = 0.30;
 
         private string _idLote = string.Empty;
@@ -16,7 +16,7 @@ namespace ViveroWebApi.Dominio.Entidades
         private int _cantidadViva;
         private int _cantidadComprometida;
 
-        // Lista privada: nadie desde afuera puede agregar o borrar labores sin control.
+        // Lista privada para que nadie agregue labores sin control.
         private readonly List<Labor> _labores = new List<Labor>();
 
         public Lote(string idLote, DateTime fechaSiembra, int cantidadSembrada,
@@ -24,8 +24,8 @@ namespace ViveroWebApi.Dominio.Entidades
         {
             IdLote = idLote;
             FechaSiembra = fechaSiembra.Date;
-            CantidadSembrada = cantidadSembrada;   // primero las sembradas...
-            CantidadViva = cantidadSembrada;       // ...porque al inicio todas están vivas
+            CantidadSembrada = cantidadSembrada;
+            CantidadViva = cantidadSembrada;       // al inicio todas están vivas
             CantidadComprometida = 0;
             Ubicacion = ubicacion;
             TamanioMatera = tamanioMatera;
@@ -93,34 +93,34 @@ namespace ViveroWebApi.Dominio.Entidades
             }
         }
 
-        // El tamaño de matera es del LOTE (no de la especie): cada lote crece a su ritmo.
+        // El tamaño de matera es del lote, no de la especie.
         public TamanioMatera TamanioMatera { get; private set; }
 
         public EstadoLote Estado { get; private set; }
 
-        // Desde afuera la lista es de solo lectura; para agregar se usa AgregarLabor.
+        // Solo lectura; para agregar se usa AgregarLabor.
         public IReadOnlyList<Labor> Labores
         {
             get { return _labores.AsReadOnly(); }
         }
 
-        // Porcentaje de plantas muertas, como fracción entre 0 y 1 (0.25 = 25 %).
-        // El (double) es necesario: dividir dos int en C# quita los decimales y daría 0.
+        // Porcentaje de plantas muertas (0.25 = 25 %).
+        // Se usa (double) porque dividir dos int quita los decimales.
         public double CalcularMortalidad()
         {
             if (CantidadSembrada == 0)
-                return 0;   // evita dividir por cero
+                return 0;   // para no dividir por cero
             int bajas = CantidadSembrada - CantidadViva;
             return (double)bajas / CantidadSembrada;
         }
 
-        // Plantas vivas que todavía no están comprometidas en un pedido.
+        // Plantas vivas que no están comprometidas en un pedido.
         public int CalcularDisponibilidad()
         {
             return CantidadViva - CantidadComprometida;
         }
 
-        // Reporta plantas muertas. Si la mortalidad supera el 30 %, el lote pasa solo a revisión.
+        // Resta las plantas muertas. Si la mortalidad pasa de 30 %, el lote pasa a revisión.
         public void RegistrarBaja(int cantidad)
         {
             if (Estado == EstadoLote.Descartado)
@@ -138,7 +138,7 @@ namespace ViveroWebApi.Dominio.Entidades
                 Estado = EstadoLote.EnRevision;
         }
 
-        // Compromete plantas del lote para un pedido.
+        // Compromete plantas para un pedido.
         public void Comprometer(int cantidad)
         {
             if (cantidad <= 0)
@@ -146,7 +146,7 @@ namespace ViveroWebApi.Dominio.Entidades
             CantidadComprometida = CantidadComprometida + cantidad;
         }
 
-        // Libera plantas que estaban comprometidas (por ejemplo, si se anula un pedido).
+        // Libera plantas comprometidas (por ejemplo si se cancela un pedido).
         public void LiberarComprometidas(int cantidad)
         {
             if (cantidad <= 0)
@@ -168,8 +168,7 @@ namespace ViveroWebApi.Dominio.Entidades
             Estado = EstadoLote.Descartado;
         }
 
-        // Cambia la matera a una MÁS GRANDE. Como TamanioMatera es un enum, se puede comparar:
-        // Grande > Mediana > Pequena.
+        // Solo deja pasar a una matera más grande.
         public void Trasplantar(TamanioMatera nuevoTamanio)
         {
             if (Estado == EstadoLote.Descartado)
@@ -179,7 +178,7 @@ namespace ViveroWebApi.Dominio.Entidades
             TamanioMatera = nuevoTamanio;
         }
 
-        // Crea una labor para este lote. Cuenta los días desde hoy.
+        // Crea una labor para este lote, contando desde hoy.
         public Labor AgregarLabor(string descripcion, int periodicidadDias)
         {
             Labor labor = new Labor(_labores.Count + 1, descripcion, periodicidadDias, DateTime.Today);

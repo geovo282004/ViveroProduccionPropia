@@ -1,56 +1,100 @@
+using ViveroWebApi.Dominio.Excepciones;
+
 namespace ViveroWebApi.Dominio.Entidades
 {
-    // Representa un producto y una cantidad dentro de un pedido.
+    // Un renglón del pedido: un producto, cuántas unidades y a qué precio.
     public class LineaPedido
     {
-        // Identificador de esta línea dentro del pedido.
-        public int IdLinea { get; set; }
+        private int _cantidad;
+        private decimal _precioUnitario;
 
-        // Producto al que corresponde esta línea.
-        // Se asigna antes de usar los métodos de la clase.
-        public Producto Producto { get; set; } = null!;
+        public LineaPedido(int idLinea, Producto producto, int cantidad, decimal precioUnitario)
+        {
+            IdLinea = idLinea;
+            Producto = producto;
+            Cantidad = cantidad;
+            PrecioUnitario = precioUnitario;
+            CantidadComprometida = 0;
+            CantidadDespachada = 0;
+        }
 
-        // Cantidad de unidades solicitadas por el cliente.
-        public int Cantidad { get; set; }
+        public int IdLinea { get; private set; }
 
-        // Precio de cada unidad aplicado a este pedido.
-        public decimal PrecioUnitario { get; set; }
+        // Asociación: la línea TIENE un producto, pero no ES un producto.
+        public Producto Producto { get; private set; }
 
-        // Cantidad que esta línea logró reservar.
-        // Solo se puede modificar desde esta clase.
+        public int Cantidad
+        {
+            get { return _cantidad; }
+            private set
+            {
+                if (value <= 0)
+                    throw new DatoInvalidoException("La cantidad debe ser mayor que cero.");
+                _cantidad = value;
+            }
+        }
+
+        public decimal PrecioUnitario
+        {
+            get { return _precioUnitario; }
+            private set
+            {
+                if (value < 0)
+                    throw new DatoInvalidoException("El precio unitario no puede ser negativo.");
+                _precioUnitario = value;
+            }
+        }
+
+        // Lo apartado que todavía no se ha entregado.
         public int CantidadComprometida { get; private set; }
 
-        public decimal Subtotal {get;set;} 
-        
-        // Calcula el subtotal multiplicando el precio por la cantidad solicitada.
+        // Lo que ya se le entregó al cliente (para el despacho parcial).
+        public int CantidadDespachada { get; private set; }
+
+        // Lo que falta por entregar: se calcula, no se guarda.
+        public int CantidadPendiente
+        {
+            get { return Cantidad - CantidadDespachada; }
+        }
+
+        // El subtotal no se guarda: se calcula cada vez que se pide
+        // (el profe pidió no guardar valores derivados).
+        public decimal Subtotal
+        {
+            get { return CalcularSubtotal(); }
+        }
+
         public decimal CalcularSubtotal()
         {
             return PrecioUnitario * Cantidad;
         }
 
-        // Registra cuántas unidades están disponibles para esta línea.
-        // Si no hay suficientes, registra las unidades disponibles.
+        // Aparta lo que falta por entregar o, si no alcanza, lo que haya disponible.
         public void Reservar()
         {
             int disponible = Producto.Disponibilidad();
-
-            if (disponible >= Cantidad)
-            {
-                CantidadComprometida = Cantidad;
-            }
-            else
-            {
-                CantidadComprometida = disponible;
-            }
+            CantidadComprometida = Math.Min(disponible, CantidadPendiente);
         }
 
-        // Indica si se pudo reservar toda la cantidad solicitada.
+        // Todo lo que falta por entregar quedó apartado.
         public bool EstaCompleta()
         {
-            return CantidadComprometida == Cantidad;
+            return CantidadComprometida == CantidadPendiente;
         }
 
-        // Libera la cantidad registrada como reservada en esta línea.
+        // Ya se entregó todo.
+        public bool EstaEntregada()
+        {
+            return CantidadPendiente == 0;
+        }
+
+        // Entrega lo apartado.
+        public void Despachar()
+        {
+            CantidadDespachada += CantidadComprometida;
+            CantidadComprometida = 0;
+        }
+
         public void LiberarReserva()
         {
             CantidadComprometida = 0;

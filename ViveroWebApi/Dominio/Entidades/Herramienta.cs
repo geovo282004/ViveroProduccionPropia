@@ -3,6 +3,11 @@ namespace ViveroWebApi.Dominio.Entidades
 {
     public class Herramienta  : ProductoConStock
     {
+        // Constructor vacío solo para Entity Framework (lo usa al leer de la base de datos).
+        private Herramienta()
+        {
+        }
+
         public Herramienta(string codigo, string nombre, decimal precio, int cantidadDisponible, string ubicacion, bool tieneGarantia) 
 
             : base(codigo, nombre, precio, cantidadDisponible)

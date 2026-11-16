@@ -18,6 +18,11 @@ namespace ViveroWebApi.Dominio.Entidades
             FechaProxima = fechaBase.Date.AddDays(periodicidadDias);
         }
 
+        // Constructor vacío solo para Entity Framework (lo usa al leer de la base de datos).
+        private Labor()
+        {
+        }
+
         public int IdLabor { get; private set; }
 
         public string Descripcion

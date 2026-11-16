@@ -18,6 +18,12 @@ namespace ViveroWebApi.Dominio.Entidades
             CantidadDespachada = 0;
         }
 
+        // Constructor vacío solo para Entity Framework (lo usa al leer de la base de datos).
+        private LineaPedido()
+        {
+            Producto = null!;
+        }
+
         public int IdLinea { get; private set; }
 
         // Asociación: la línea TIENE un producto, pero no ES un producto.

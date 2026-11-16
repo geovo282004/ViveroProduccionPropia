@@ -4,6 +4,11 @@ namespace ViveroWebApi.Dominio.Entidades
     public abstract class ProductoConStock : Producto
     {
         private int _cantidadDisponible;
+        // Constructor vacío solo para Entity Framework (lo usa al leer de la base de datos).
+        protected ProductoConStock()
+        {
+        }
+
         protected ProductoConStock(string codigo, string nombre, decimal precio, int cantidadDisponible) 
         : base(codigo, nombre, precio)
         {

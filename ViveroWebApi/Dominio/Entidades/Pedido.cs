@@ -23,6 +23,12 @@ namespace ViveroWebApi.Dominio.Entidades
             Estado = EstadoPedido.Creado;
         }
 
+        // Constructor vacío solo para Entity Framework (lo usa al leer de la base de datos).
+        private Pedido()
+        {
+            Cliente = null!;
+        }
+
         public int Numero { get; private set; }
         public DateTime Fecha { get; private set; }
         public EstadoPedido Estado { get; private set; }

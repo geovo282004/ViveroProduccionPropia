@@ -7,6 +7,11 @@ namespace ViveroWebApi.Dominio.Entidades
     {
 private decimal _costoProveedor;
 
+        // Constructor vacío solo para Entity Framework (lo usa al leer de la base de datos).
+    private Insumo()
+    {
+    }
+
     public Insumo(string codigo, string nombre, decimal precio, int cantidadDisponible,
             string unidadMedida, decimal costoProveedor, DateTime? fechaVencimiento)
         : base(codigo, nombre, precio, cantidadDisponible)

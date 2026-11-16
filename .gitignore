@@ -482,3 +482,8 @@ $RECYCLE.BIN/
 
 # Vim temporary swap files
 *.swp
+
+# Base de datos SQLite local (cada uno genera la suya al ejecutar)
+vivero.db
+vivero.db-shm
+vivero.db-wal

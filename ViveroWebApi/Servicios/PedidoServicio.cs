@@ -69,6 +69,7 @@ namespace ViveroWebApi.Servicios
 
             // Toda la lógica (estado, producto activo, descuento, subtotal) está en el dominio.
             pedido.AgregarLinea(producto, request.Cantidad);
+            _pedidos.Guardar(pedido);   // guarda el cambio en la base de datos
             return _mapper.ARespuesta(pedido);
         }
 
@@ -80,6 +81,7 @@ namespace ViveroWebApi.Servicios
                     "No se pudo reservar. Revise que el pedido esté en estado Creado, que el cliente esté activo y pueda reservar, " +
                     "que el total llegue a $50.000, que haya cupo de crédito si es a crédito, y que haya disponibilidad " +
                     "(o que el cliente acepte despacho parcial).");
+            _pedidos.Guardar(pedido);   // guarda el pedido y el cupo usado del cliente
             return _mapper.ARespuesta(pedido);
         }
 
@@ -88,6 +90,7 @@ namespace ViveroWebApi.Servicios
             Pedido pedido = BuscarPedido(numero);
             if (!pedido.DespacharPedido())
                 throw new PedidoInvalidoException("Solo se puede despachar un pedido en estado Reservado.");
+            _pedidos.Guardar(pedido);
             return _mapper.ARespuesta(pedido);
         }
 
@@ -95,6 +98,7 @@ namespace ViveroWebApi.Servicios
         {
             Pedido pedido = BuscarPedido(numero);
             pedido.Cancelar();   // si ya está despachado, el dominio lanza PedidoInvalidoException
+            _pedidos.Guardar(pedido);   // guarda el estado y el cupo liberado
             return _mapper.ARespuesta(pedido);
         }
 

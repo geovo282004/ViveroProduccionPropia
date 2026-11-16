@@ -19,6 +19,11 @@ namespace ViveroWebApi.Dominio.Entidades
         // Lista privada para que nadie agregue labores sin control.
         private readonly List<Labor> _labores = new List<Labor>();
 
+        // Constructor vacío solo para Entity Framework (lo usa al leer de la base de datos).
+        private Lote()
+        {
+        }
+
         public Lote(string idLote, DateTime fechaSiembra, int cantidadSembrada,
                     string ubicacion, TamanioMatera tamanioMatera)
         {

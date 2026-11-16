@@ -14,6 +14,11 @@ namespace ViveroWebApi.Dominio.Entidades
             Precio = precio;
             ActivoCatalogo = true;
         }
+        // Constructor vacío solo para Entity Framework (lo usa al leer de la base de datos).
+        protected Producto()
+        {
+        }
+
         private string _codigo = string.Empty;   // la caja fuerte (privada)
 
         public string Codigo                      // la puerta

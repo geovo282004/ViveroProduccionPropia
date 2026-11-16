@@ -10,6 +10,12 @@ namespace ViveroWebApi.Dominio.Entidades
         private string _correo = string.Empty;
         private decimal _cupoCredito;
 
+        // Constructor vacío solo para Entity Framework (lo usa al leer de la base de datos).
+        private Cliente()
+        {
+            TipoCliente = new ClienteParticular();
+        }
+
         public Cliente(string documento, string nombre, string correo, string direccion,
             ITipoCliente tipoCliente, decimal cupoCredito)
         {

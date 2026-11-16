@@ -11,7 +11,7 @@ namespace ViveroWebApi.Dominio.Entidades
         private string _nombreCientifico = string.Empty;
 
         // Precio según el tamaño de matera.
-        private readonly Dictionary<TamanioMatera, decimal> _precios = new Dictionary<TamanioMatera, decimal>();
+        private Dictionary<TamanioMatera, decimal> _precios = new Dictionary<TamanioMatera, decimal>();
 
         // Lista privada para que nadie agregue lotes sin control.
         private readonly List<Lote> _lotes = new List<Lote>();
@@ -22,6 +22,11 @@ namespace ViveroWebApi.Dominio.Entidades
         {
             NombreCientifico = nombreCientifico;
             AsignarPrecios(precioPequena, precioMediana, precioGrande);
+        }
+
+        // Constructor vacío solo para Entity Framework (lo usa al leer de la base de datos).
+        private Especie()
+        {
         }
 
         public override TipoProducto Tipo

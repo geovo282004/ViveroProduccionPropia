@@ -76,6 +76,7 @@ namespace ViveroWebApi.Servicios
         {
             Especie especie = BuscarEspecie(codigo);
             especie.AgregarLote(_mapper.ADominio(request));
+            _repositorio.Guardar(especie);   // guarda el cambio en la base de datos
             return _mapper.ARespuesta(especie);
         }
 
@@ -83,6 +84,7 @@ namespace ViveroWebApi.Servicios
         {
             Especie especie = BuscarEspecie(codigo);
             BuscarLote(especie, idLote).RegistrarBaja(request.Cantidad);
+            _repositorio.Guardar(especie);   // guarda el cambio en la base de datos
             return _mapper.ARespuesta(especie);
         }
 
@@ -90,6 +92,7 @@ namespace ViveroWebApi.Servicios
         {
             Especie especie = BuscarEspecie(codigo);
             BuscarLote(especie, idLote).MarcarListo();
+            _repositorio.Guardar(especie);   // guarda el cambio en la base de datos
             return _mapper.ARespuesta(especie);
         }
 
@@ -97,6 +100,7 @@ namespace ViveroWebApi.Servicios
         {
             Especie especie = BuscarEspecie(codigo);
             BuscarLote(especie, idLote).Trasplantar(request.NuevoTamanio);
+            _repositorio.Guardar(especie);   // guarda el cambio en la base de datos
             return _mapper.ARespuesta(especie);
         }
 
@@ -104,6 +108,7 @@ namespace ViveroWebApi.Servicios
         {
             Especie especie = BuscarEspecie(codigo);
             BuscarLote(especie, idLote).AgregarLabor(request.Descripcion, request.PeriodicidadDias);
+            _repositorio.Guardar(especie);   // guarda el cambio en la base de datos
             return _mapper.ARespuesta(especie);
         }
 
@@ -115,6 +120,7 @@ namespace ViveroWebApi.Servicios
             if (labor == null)
                 throw new RecursoNoEncontradoException($"No existe la labor {idLabor} en el lote {idLote}.");
             labor.RegistrarRealizacion(DateTime.Today);
+            _repositorio.Guardar(especie);   // guarda el cambio en la base de datos
             return _mapper.ARespuesta(especie);
         }
 

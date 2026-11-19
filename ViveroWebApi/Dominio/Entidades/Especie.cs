@@ -17,7 +17,7 @@ namespace ViveroWebApi.Dominio.Entidades
         private readonly List<Lote> _lotes = new List<Lote>();
 
         public Especie(string codigo, string nombre, string nombreCientifico,
-                       decimal precioPequena, decimal precioMediana, decimal precioGrande)
+            decimal precioPequena, decimal precioMediana, decimal precioGrande)
             : base(codigo, nombre, precioPequena)   // el precio base es el de la matera pequeña
         {
             NombreCientifico = nombreCientifico;
@@ -103,21 +103,51 @@ namespace ViveroWebApi.Dominio.Entidades
                 }
             }
             return total;
+
+        
+        }
+                // El precio de una planta depende del tamaño de la matera.
+        public override decimal PrecioPara(TamanioMatera? tamanio)
+        {
+            if (tamanio == null)
+                throw new DatoInvalidoException("Para una planta hay que indicar el tamaño de matera (Pequena, Mediana o Grande).");
+            return CalcularPrecio(tamanio.Value);
+        }
+
+        // Plantas listas, pero solo de los lotes con ese tamaño de matera.
+        public override int DisponibilidadPara(TamanioMatera? tamanio)
+        {
+            int total = 0;
+            foreach (Lote lote in _lotes)
+            {
+                if (lote.Estado == EstadoLote.Listo && EsDelTamanio(lote, tamanio))
+                {
+                    total += lote.CalcularDisponibilidad();
+                }
+            }
+            return total;
+        }
+
+        // Si no se pide tamaño, sirve cualquier lote.
+        private static bool EsDelTamanio(Lote lote, TamanioMatera? tamanio)
+        {
+            return tamanio == null || lote.TamanioMatera == tamanio;
         }
 
         // Plantas: apartar es comprometerlas en los lotes listos, empezando por el primero.
-        public override void Apartar(int cantidad)
+        public override void Apartar(int cantidad, TamanioMatera? tamanio)
         {
             if (cantidad <= 0)
                 throw new DatoInvalidoException("La cantidad a apartar debe ser mayor que cero.");
-            if (cantidad > Disponibilidad())
-                throw new DatoInvalidoException("No hay suficientes plantas listas para apartar.");
+            if (cantidad > DisponibilidadPara(tamanio))
+                throw new DatoInvalidoException("No hay suficientes plantas listas para apartar de ese tamaño.");
 
             int falta = cantidad;
             foreach (Lote lote in _lotes)
             {
                 if (falta == 0) break;
                 if (lote.Estado != EstadoLote.Listo) continue;
+                if (!EsDelTamanio(lote, tamanio)) continue;
 
                 int tomar = Math.Min(lote.CalcularDisponibilidad(), falta);
                 if (tomar > 0)
@@ -129,12 +159,13 @@ namespace ViveroWebApi.Dominio.Entidades
         }
 
         // Si se cancela el pedido, las plantas comprometidas vuelven a estar libres.
-        public override void Liberar(int cantidad)
+        public override void Liberar(int cantidad, TamanioMatera? tamanio)
         {
             int falta = cantidad;
             foreach (Lote lote in _lotes)
             {
                 if (falta == 0) break;
+                if (!EsDelTamanio(lote, tamanio)) continue;
                 int tomar = Math.Min(lote.CantidadComprometida, falta);
                 if (tomar > 0)
                 {
@@ -145,12 +176,13 @@ namespace ViveroWebApi.Dominio.Entidades
         }
 
         // Al despachar, las plantas comprometidas salen del vivero.
-        public override void Entregar(int cantidad)
+        public override void Entregar(int cantidad, TamanioMatera? tamanio)
         {
             int falta = cantidad;
             foreach (Lote lote in _lotes)
             {
                 if (falta == 0) break;
+                if (!EsDelTamanio(lote, tamanio)) continue;
                 int tomar = Math.Min(lote.CantidadComprometida, falta);
                 if (tomar > 0)
                 {

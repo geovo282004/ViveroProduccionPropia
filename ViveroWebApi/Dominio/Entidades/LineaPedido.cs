@@ -1,3 +1,4 @@
+using ViveroWebApi.Dominio.Enumeraciones;
 using ViveroWebApi.Dominio.Excepciones;
 
 namespace ViveroWebApi.Dominio.Entidades
@@ -8,10 +9,12 @@ namespace ViveroWebApi.Dominio.Entidades
         private int _cantidad;
         private decimal _precioUnitario;
 
-        public LineaPedido(int idLinea, Producto producto, int cantidad, decimal precioUnitario)
+        public LineaPedido(int idLinea, Producto producto, int cantidad, decimal precioUnitario,
+        TamanioMatera? tamanioMatera)
         {
             IdLinea = idLinea;
             Producto = producto;
+            TamanioMatera = tamanioMatera;
             Cantidad = cantidad;
             PrecioUnitario = precioUnitario;
             CantidadComprometida = 0;
@@ -28,6 +31,8 @@ namespace ViveroWebApi.Dominio.Entidades
 
         // Asociación: la línea TIENE un producto, pero no ES un producto.
         public Producto Producto { get; private set; }
+        // Solo para plantas: en qué tamaño de matera la quiere el cliente (null en insumos y herramientas).
+        public TamanioMatera? TamanioMatera { get; private set; }
 
         public int Cantidad
         {
@@ -79,10 +84,10 @@ namespace ViveroWebApi.Dominio.Entidades
         public void Reservar()
         {
             int faltaApartar = CantidadPendiente - CantidadComprometida;
-            int aApartar = Math.Min(Producto.Disponibilidad(), faltaApartar);
+            int aApartar = Math.Min(Producto.DisponibilidadPara(TamanioMatera), faltaApartar);
             if (aApartar > 0)
             {
-                Producto.Apartar(aApartar);   // el producto descuenta su inventario (polimorfismo)
+                Producto.Apartar(aApartar, TamanioMatera);   // el producto descuenta su inventario (polimorfismo)
                 CantidadComprometida = CantidadComprometida + aApartar;
             }
         }
@@ -103,7 +108,7 @@ namespace ViveroWebApi.Dominio.Entidades
         public void Despachar()
         {
             if (CantidadComprometida == 0) return;
-            Producto.Entregar(CantidadComprometida);   // sale del inventario
+            Producto.Entregar(CantidadComprometida, TamanioMatera);   // sale del inventario
             CantidadDespachada += CantidadComprometida;
             CantidadComprometida = 0;
         }
@@ -112,7 +117,7 @@ namespace ViveroWebApi.Dominio.Entidades
         public void LiberarReserva()
         {
             if (CantidadComprometida == 0) return;
-            Producto.Liberar(CantidadComprometida);
+            Producto.Liberar(CantidadComprometida, TamanioMatera);   // vuelve al inventario     
             CantidadComprometida = 0;
         }
     }

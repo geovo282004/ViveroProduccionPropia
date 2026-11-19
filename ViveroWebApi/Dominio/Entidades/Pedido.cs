@@ -52,17 +52,20 @@ namespace ViveroWebApi.Dominio.Entidades
             get { return _lineas; }
         }
 
-        public LineaPedido AgregarLinea(Producto producto, int cantidad)
-        {
+                
+            public LineaPedido AgregarLinea(Producto producto, int cantidad, TamanioMatera? tamanio)
+            {
             if (Estado != EstadoPedido.Creado)
                 throw new PedidoInvalidoException("Solo se pueden agregar líneas a un pedido en estado Creado.");
             if (!producto.ActivoCatalogo)
                 throw new PedidoInvalidoException("El producto no está activo en el catálogo.");
 
             // El descuento depende del tipo de cliente y del tipo de producto.
-            decimal precioConDescuento = producto.Precio * (1 - Cliente.Descuento(producto));
+                        // El precio depende del tamaño de matera (si es planta) y del precio base del producto.
+            decimal precioBase = producto.PrecioPara(tamanio);
+            decimal precioConDescuento = precioBase * (1 - Cliente.Descuento(producto));
 
-            LineaPedido linea = new LineaPedido(_lineas.Count + 1, producto, cantidad, precioConDescuento);
+            LineaPedido linea = new LineaPedido(_lineas.Count + 1, producto, cantidad, precioConDescuento, tamanio);
             _lineas.Add(linea);
             return linea;
         }

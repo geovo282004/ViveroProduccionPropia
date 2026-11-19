@@ -63,9 +63,22 @@ namespace ViveroWebApi.Dominio.Entidades
 
         // Polimorfismo: cada tipo de producto sabe cómo se aparta, se libera y se entrega su inventario.
         // Apartar = reservarlo para un pedido. Liberar = devolverlo si se cancela. Entregar = sale del vivero.
-        public abstract void Apartar(int cantidad);
-        public abstract void Liberar(int cantidad);
-        public abstract void Entregar(int cantidad);
+       // El tamaño de matera solo le importa a las plantas; los demás productos lo ignoran.
+        public abstract void Apartar(int cantidad, TamanioMatera? tamanio);
+        public abstract void Liberar(int cantidad, TamanioMatera? tamanio);
+        public abstract void Entregar(int cantidad, TamanioMatera? tamanio);
+
+        // Precio y disponibilidad según el tamaño de matera.
+        // Por defecto el tamaño no importa (insumos y herramientas). La Especie los sobrescribe.
+        public virtual decimal PrecioPara(TamanioMatera? tamanio)
+        {
+            return Precio;
+        }
+
+        public virtual int DisponibilidadPara(TamanioMatera? tamanio)
+        {
+            return Disponibilidad();
+        }
 
         public void ActualizarPrecio(decimal nuevoPrecio)
         {

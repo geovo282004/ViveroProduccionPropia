@@ -13,12 +13,14 @@ namespace ViveroWebApi.DTOs
     // Para agregar una línea: qué producto (por código) y cuántas unidades.
     public record LineaPedidoRequest(
         [Required] string CodigoProducto,
-        [Range(1, int.MaxValue)] int Cantidad);
+        [Range(1, int.MaxValue)] int Cantidad,
+        TamanioMatera? TamanioMatera);   // solo para plantas: en qué tamaño de matera la quiere el cliente (null en insumos y herramientas)
 
     public record LineaPedidoResponse(
         int IdLinea,
         string CodigoProducto,
         string NombreProducto,
+        TamanioMatera? TamanioMatera,
         int Cantidad,
         decimal PrecioUnitario,
         int CantidadComprometida,

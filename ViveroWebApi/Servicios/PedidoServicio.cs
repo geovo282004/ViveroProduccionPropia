@@ -29,7 +29,7 @@ namespace ViveroWebApi.Servicios
         private readonly IPedidoMapper _mapper;
 
         public PedidoServicio(IPedidoRepositorio pedidos, IClienteLecturaRepositorio clientes,
-                              IProductoLecturaRepositorio productos, IPedidoMapper mapper)
+        IProductoLecturaRepositorio productos, IPedidoMapper mapper)
         {
             _pedidos = pedidos;
             _clientes = clientes;
@@ -68,7 +68,7 @@ namespace ViveroWebApi.Servicios
                 throw new RecursoNoEncontradoException($"No existe un producto con código {request.CodigoProducto}.");
 
             // Toda la lógica (estado, producto activo, descuento, subtotal) está en el dominio.
-            pedido.AgregarLinea(producto, request.Cantidad);
+            pedido.AgregarLinea(producto, request.Cantidad, request.TamanioMatera);
             _pedidos.Guardar(pedido);   // guarda el cambio en la base de datos
             return _mapper.ARespuesta(pedido);
         }

@@ -78,8 +78,13 @@ namespace ViveroWebApi.Dominio.Entidades
         // Aparta lo que falta por entregar o, si no alcanza, lo que haya disponible.
         public void Reservar()
         {
-            int disponible = Producto.Disponibilidad();
-            CantidadComprometida = Math.Min(disponible, CantidadPendiente);
+            int faltaApartar = CantidadPendiente - CantidadComprometida;
+            int aApartar = Math.Min(Producto.Disponibilidad(), faltaApartar);
+            if (aApartar > 0)
+            {
+                Producto.Apartar(aApartar);   // el producto descuenta su inventario (polimorfismo)
+                CantidadComprometida = CantidadComprometida + aApartar;
+            }
         }
 
         // Todo lo que falta por entregar quedó apartado.
@@ -97,12 +102,17 @@ namespace ViveroWebApi.Dominio.Entidades
         // Entrega lo apartado.
         public void Despachar()
         {
+            if (CantidadComprometida == 0) return;
+            Producto.Entregar(CantidadComprometida);   // sale del inventario
             CantidadDespachada += CantidadComprometida;
             CantidadComprometida = 0;
         }
 
+        // Devuelve al inventario lo que estaba apartado.
         public void LiberarReserva()
         {
+            if (CantidadComprometida == 0) return;
+            Producto.Liberar(CantidadComprometida);
             CantidadComprometida = 0;
         }
     }

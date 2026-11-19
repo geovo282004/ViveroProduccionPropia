@@ -32,5 +32,31 @@ namespace ViveroWebApi.Dominio.Entidades
         {
             return CantidadDisponible;
         }
+
+        // Insumos y herramientas: apartar es como sacarlo del estante.
+        // Ya no está disponible para otro pedido.
+        public override void Apartar(int cantidad)
+        {
+            if (cantidad <= 0)
+                throw new DatoInvalidoException("La cantidad a apartar debe ser mayor que cero.");
+            if (cantidad > Disponibilidad())
+                throw new DatoInvalidoException("No hay suficiente inventario para apartar.");
+            CantidadDisponible = CantidadDisponible - cantidad;
+        }
+
+        // Si se cancela el pedido, vuelve al estante.
+        public override void Liberar(int cantidad)
+        {
+            if (cantidad <= 0)
+                throw new DatoInvalidoException("La cantidad a liberar debe ser mayor que cero.");
+            CantidadDisponible = CantidadDisponible + cantidad;
+        }
+
+        // Ya se descontó del inventario al apartar, así que al entregar no se resta otra vez.
+        public override void Entregar(int cantidad)
+        {
+            if (cantidad <= 0)
+                throw new DatoInvalidoException("La cantidad a entregar debe ser mayor que cero.");
+        }
     }
 }

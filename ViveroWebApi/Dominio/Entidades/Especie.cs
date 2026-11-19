@@ -104,5 +104,60 @@ namespace ViveroWebApi.Dominio.Entidades
             }
             return total;
         }
+
+        // Plantas: apartar es comprometerlas en los lotes listos, empezando por el primero.
+        public override void Apartar(int cantidad)
+        {
+            if (cantidad <= 0)
+                throw new DatoInvalidoException("La cantidad a apartar debe ser mayor que cero.");
+            if (cantidad > Disponibilidad())
+                throw new DatoInvalidoException("No hay suficientes plantas listas para apartar.");
+
+            int falta = cantidad;
+            foreach (Lote lote in _lotes)
+            {
+                if (falta == 0) break;
+                if (lote.Estado != EstadoLote.Listo) continue;
+
+                int tomar = Math.Min(lote.CalcularDisponibilidad(), falta);
+                if (tomar > 0)
+                {
+                    lote.Comprometer(tomar);
+                    falta = falta - tomar;
+                }
+            }
+        }
+
+        // Si se cancela el pedido, las plantas comprometidas vuelven a estar libres.
+        public override void Liberar(int cantidad)
+        {
+            int falta = cantidad;
+            foreach (Lote lote in _lotes)
+            {
+                if (falta == 0) break;
+                int tomar = Math.Min(lote.CantidadComprometida, falta);
+                if (tomar > 0)
+                {
+                    lote.LiberarComprometidas(tomar);
+                    falta = falta - tomar;
+                }
+            }
+        }
+
+        // Al despachar, las plantas comprometidas salen del vivero.
+        public override void Entregar(int cantidad)
+        {
+            int falta = cantidad;
+            foreach (Lote lote in _lotes)
+            {
+                if (falta == 0) break;
+                int tomar = Math.Min(lote.CantidadComprometida, falta);
+                if (tomar > 0)
+                {
+                    lote.Entregar(tomar);
+                    falta = falta - tomar;
+                }
+            }
+        }
     }
 }

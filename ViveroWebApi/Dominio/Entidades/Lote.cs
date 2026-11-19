@@ -101,6 +101,9 @@ namespace ViveroWebApi.Dominio.Entidades
         // El tamaño de matera es del lote, no de la especie.
         public TamanioMatera TamanioMatera { get; private set; }
 
+        // Plantas que ya salieron del vivero en pedidos (no son bajas: no cuentan como muertas).
+        public int CantidadEntregada { get; private set; }
+
         public EstadoLote Estado { get; private set; }
 
         // Solo lectura; para agregar se usa AgregarLabor.
@@ -115,7 +118,7 @@ namespace ViveroWebApi.Dominio.Entidades
         {
             if (CantidadSembrada == 0)
                 return 0;   // para no dividir por cero
-            int bajas = CantidadSembrada - CantidadViva;
+            int bajas = CantidadSembrada - CantidadViva - CantidadEntregada;   // las entregadas no murieron
             return (double)bajas / CantidadSembrada;
         }
 
@@ -149,6 +152,19 @@ namespace ViveroWebApi.Dominio.Entidades
             if (cantidad <= 0)
                 throw new DatoInvalidoException("La cantidad a comprometer debe ser mayor que cero.");
             CantidadComprometida = CantidadComprometida + cantidad;
+        }
+
+        // Las plantas comprometidas se entregan al cliente: salen del lote.
+        public void Entregar(int cantidad)
+        {
+            if (cantidad <= 0)
+                throw new DatoInvalidoException("La cantidad a entregar debe ser mayor que cero.");
+            if (cantidad > CantidadComprometida)
+                throw new DatoInvalidoException("No se pueden entregar más plantas que las comprometidas.");
+
+            CantidadComprometida = CantidadComprometida - cantidad;   // primero se descomprometen
+            CantidadViva = CantidadViva - cantidad;                   // y luego salen del lote
+            CantidadEntregada = CantidadEntregada + cantidad;
         }
 
         // Libera plantas comprometidas (por ejemplo si se cancela un pedido).

@@ -61,6 +61,12 @@ namespace ViveroWebApi.Dominio.Entidades
         // Abstracto: cada hijo dice cómo calcula su disponibilidad.
         public abstract int Disponibilidad();
 
+        // Polimorfismo: cada tipo de producto sabe cómo se aparta, se libera y se entrega su inventario.
+        // Apartar = reservarlo para un pedido. Liberar = devolverlo si se cancela. Entregar = sale del vivero.
+        public abstract void Apartar(int cantidad);
+        public abstract void Liberar(int cantidad);
+        public abstract void Entregar(int cantidad);
+
         public void ActualizarPrecio(decimal nuevoPrecio)
         {
             Precio = nuevoPrecio;

@@ -1,5 +1,6 @@
 using ViveroWebApi.Dominio.Enumeraciones;
 using ViveroWebApi.Dominio.Excepciones;
+using ViveroWebApi.Dominio.Memento;
 
 namespace ViveroWebApi.Dominio.Entidades
 {
@@ -63,6 +64,23 @@ private decimal _costoProveedor;
                 return 0;
             return base.Disponibilidad();
         }
+            // MEMENTO: el insumo se toma una foto de sí mismo.
+    public InsumoMemento CrearMemento()
+    {
+        return new InsumoMemento(Nombre, Precio, CantidadDisponible,
+            UnidadMedida, CostoProveedor, FechaVencimiento);
+    }
+
+    // MEMENTO: el insumo vuelve a como estaba en la foto.
+    public void Restaurar(InsumoMemento memento)
+    {
+        Nombre = memento.Nombre;
+        ActualizarPrecio(memento.Precio);
+        ActualizarStock(memento.CantidadDisponible);
+        UnidadMedida = memento.UnidadMedida;
+        CostoProveedor = memento.CostoProveedor;
+        FechaVencimiento = memento.FechaVencimiento;
+    }
     }
 }
 

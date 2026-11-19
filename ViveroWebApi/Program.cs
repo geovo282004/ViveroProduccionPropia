@@ -5,6 +5,7 @@ using ViveroWebApi.Excepciones;
 using ViveroWebApi.Mappers;
 using ViveroWebApi.Repositorios;
 using ViveroWebApi.Servicios;
+using ViveroWebApi.Dominio.Memento;
 
 namespace ViveroWebApi;
 
@@ -44,6 +45,8 @@ public class Program
         builder.Services.AddScoped<IInsumoServicio, InsumoServicio>();
         builder.Services.AddScoped<IHerramientaMapper, HerramientaMapper>();
         builder.Services.AddScoped<IHerramientaServicio, HerramientaServicio>();
+        // Patrón Memento: el álbum de fotos es Singleton (uno solo para toda la app).
+        builder.Services.AddSingleton<IHistorialInsumos, HistorialInsumos>();
 
         // Persona 2: especies, lotes y labores
         builder.Services.AddScoped<IEspecieMapper, EspecieMapper>();

@@ -3,6 +3,8 @@ using ViveroWebApi.DTOs;
 using ViveroWebApi.Excepciones;
 using ViveroWebApi.Mappers;
 using ViveroWebApi.Repositorios;
+using ViveroWebApi.Dominio.Excepciones;
+using ViveroWebApi.Dominio.Memento;
 
 namespace ViveroWebApi.Servicios
 {
@@ -15,6 +17,7 @@ namespace ViveroWebApi.Servicios
         InsumoResponse Crear(InsumoRequest request);
         InsumoResponse Actualizar(string codigo, InsumoRequest request);
         void Eliminar(string codigo);
+        InsumoResponse Deshacer(string codigo); 
     }
 
     public class InsumoServicio : IInsumoServicio
@@ -23,11 +26,13 @@ namespace ViveroWebApi.Servicios
         // Program.cs decide qué clase real se usa (inyección de dependencias).
         private readonly IProductoRepositorio _repositorio;
         private readonly IInsumoMapper _mapper;
+        private readonly IHistorialInsumos _historial;   // el álbum de fotos (Memento)
 
-        public InsumoServicio(IProductoRepositorio repositorio, IInsumoMapper mapper)
+        public InsumoServicio(IProductoRepositorio repositorio, IInsumoMapper mapper, IHistorialInsumos historial)
         {
             _repositorio = repositorio;
             _mapper = mapper;
+            _historial = historial;
         }
 
         public List<InsumoResponse> ObtenerTodos()
@@ -54,6 +59,8 @@ namespace ViveroWebApi.Servicios
         public InsumoResponse Actualizar(string codigo, InsumoRequest request)
         {
             Insumo insumo = BuscarInsumo(codigo);
+            // MEMENTO: antes de cambiar, se guarda la foto de cómo estaba.
+            _historial.Guardar(codigo, insumo.CrearMemento());
             insumo.Nombre = request.Nombre;
             insumo.ActualizarPrecio(request.Precio);
             insumo.UnidadMedida = request.UnidadMedida;
@@ -69,6 +76,20 @@ namespace ViveroWebApi.Servicios
             BuscarInsumo(codigo);   // si no existe, lanza 404
             _repositorio.Eliminar(codigo);
         }
+                // MEMENTO: vuelve el insumo a como estaba antes del último cambio (como Ctrl + Z).
+        public InsumoResponse Deshacer(string codigo)
+        {
+            Insumo insumo = BuscarInsumo(codigo);
+
+            InsumoMemento? foto = _historial.SacarUltimo(codigo);
+            if (foto == null)
+                throw new DatoInvalidoException("No hay cambios para deshacer en este insumo.");
+
+            insumo.Restaurar(foto);
+            _repositorio.Guardar(insumo);   // guarda en la base de datos cómo quedó
+            return _mapper.ARespuesta(insumo);
+        }
+
 
         // Método privado de ayuda: busca el insumo o lanza RecursoNoEncontradoException (404).
         private Insumo BuscarInsumo(string codigo)

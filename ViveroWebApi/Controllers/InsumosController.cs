@@ -62,5 +62,15 @@ namespace ViveroWebApi.Controllers
             _servicio.Eliminar(codigo);
             return NoContent();
         }
+
+        // POST api/insumos/I-01/deshacer -> deshace el último cambio (patrón Memento)
+        [HttpPost("{codigo}/deshacer")]
+        [ProducesResponseType(typeof(InsumoResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public ActionResult<InsumoResponse> Deshacer(string codigo)
+        {
+            return Ok(_servicio.Deshacer(codigo));
+        }
     }
 }

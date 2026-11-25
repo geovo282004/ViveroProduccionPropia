@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Pedidos - Vivero</title>
+  <link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+  <nav>
+    <a href="index.html" class="marca">🌱 Vivero</a>
+    <a href="productos.html">Productos</a>
+    <a href="lotes.html">Lotes</a>
+    <a href="pedidos.html" class="activo">Pedidos</a>
+    <a href="/swagger">API</a>
+  </nav>
+  <main>
+    <h1>Pedidos</h1>
+    <p class="subtitulo">Reserva, despacha o cancela los pedidos de los clientes.</p>
+
+    <p id="mensaje"></p>
+
+    <table>
+      <thead>
+        <tr><th>N°</th><th>Fecha</th><th>Cliente</th><th>Productos</th><th>Total</th><th>Estado</th><th>Acciones</th></tr>
+      </thead>
+      <tbody id="tablaPedidos"></tbody>
+    </table>
+  </main>
+
+  <script>
+    const pesos = n => "$" + n.toLocaleString("es-CO");
+
+    async function cargarPedidos() {
+      const respuesta = await fetch("/api/pedidos");
+      const pedidos = await respuesta.json();
+
+      document.getElementById("tablaPedidos").innerHTML = pedidos.map(p => {
+        // Cada línea: "3 × Rosa (Mediana)". El tamaño solo aparece si es planta.
+        const productos = p.lineas
+          .map(l => `${l.cantidad} × ${l.nombreProducto}${l.tamanioMatera ? " (" + l.tamanioMatera + ")" : ""}`)
+          .join("<br>");
+
+        return `<tr>
+          <td>${p.numero}</td>
+          <td>${new Date(p.fecha).toLocaleDateString("es-CO")}</td>
+          <td>${p.nombreCliente}</td>
+          <td>${productos}</td>
+          <td>${pesos(p.total)}</td>
+          <td><span class="estado ${p.estado}">${p.estado}</span></td>
+          <td>
+            <button onclick="accion(${p.numero}, 'reservar')">Reservar</button>
+            <button class="secundario" onclick="accion(${p.numero}, 'despachar')">Despachar</button>
+            <button class="peligro" onclick="accion(${p.numero}, 'cancelar')">Cancelar</button>
+          </td>
+        </tr>`;
+      }).join("");
+    }
+
+    // Llama a la API con POST (por ejemplo /api/pedidos/1/reservar) y muestra el resultado.
+    async function accion(numero, que) {
+      const respuesta = await fetch(`/api/pedidos/${numero}/${que}`, { method: "POST" });
+      const mensaje = document.getElementById("mensaje");
+
+      if (respuesta.ok) {
+        mensaje.className = "ok";
+        mensaje.textContent = `Pedido ${numero}: ${que} correcto ✅`;
+      } else {
+        // Si el dominio no lo permite, la API responde 400 con el motivo en "detail".
+        const error = await respuesta.json();
+        mensaje.className = "error";
+        mensaje.textContent = `Pedido ${numero}: ${error.detail} ❌`;
+      }
+      cargarPedidos();   // vuelve a pedir la lista para ver el estado nuevo
+    }
+
+    cargarPedidos();
+  </script>
+</body>
+</html>

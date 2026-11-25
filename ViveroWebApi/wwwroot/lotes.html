@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Lotes - Vivero</title>
+  <link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+  <nav>
+    <a href="index.html" class="marca">🌱 Vivero</a>
+    <a href="productos.html">Productos</a>
+    <a href="lotes.html" class="activo">Lotes</a>
+    <a href="pedidos.html">Pedidos</a>
+    <a href="/swagger">API</a>
+  </nav>
+  <main>
+    <h1>Lotes de producción</h1>
+    <p class="subtitulo">Estado de cada lote de plantas en el vivero.</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Planta</th><th>Lote</th><th>Matera</th><th>Precio</th>
+          <th>Sembradas</th><th>Vivas</th><th>Disponibles</th>
+          <th>Mortalidad</th><th>Estado</th><th>Labores</th>
+        </tr>
+      </thead>
+      <tbody id="tablaLotes"></tbody>
+    </table>
+  </main>
+
+  <script>
+    const pesos = n => "$" + n.toLocaleString("es-CO");
+    const porcentaje = n => (n * 100).toFixed(1) + "%";   // 0.1 -> 10.0%
+
+    async function cargarLotes() {
+      const respuesta = await fetch("/api/especies");
+      const especies = await respuesta.json();
+
+      let filas = "";
+      // Cada especie TIENE varios lotes (composición): recorremos las dos listas.
+      for (const especie of especies) {
+        for (const lote of especie.lotes) {
+          filas += `<tr>
+            <td>${especie.nombre}</td>
+            <td>${lote.idLote}</td>
+            <td>${lote.tamanioMatera}</td>
+            <td>${pesos(lote.precio)}</td>
+            <td>${lote.cantidadSembrada}</td>
+            <td>${lote.cantidadViva}</td>
+            <td>${lote.disponibilidad}</td>
+            <td>${porcentaje(lote.mortalidad)}</td>
+            <td><span class="estado ${lote.estado}">${lote.estado}</span></td>
+            <td>${lote.labores.length}</td>
+          </tr>`;
+        }
+      }
+      document.getElementById("tablaLotes").innerHTML = filas;
+    }
+
+    cargarLotes();
+  </script>
+</body>
+</html>

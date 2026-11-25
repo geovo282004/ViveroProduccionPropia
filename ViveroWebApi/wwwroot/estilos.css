@@ -1,0 +1,61 @@
+/* ---------- Colores del vivero (se usan en todo el archivo) ---------- */
+:root {
+  --verde: #2e6b30;
+  --verde-claro: #e8f3e6;
+  --fondo: #f6f8f4;
+  --texto: #1f2a1f;
+  --gris: #6b7a6b;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; font-family: "Segoe UI", Arial, sans-serif; background: var(--fondo); color: var(--texto); }
+
+/* ---------- Barra de arriba ---------- */
+nav { background: var(--verde); padding: 14px 40px; display: flex; gap: 8px; align-items: center;
+      box-shadow: 0 2px 6px rgba(0,0,0,.15); }
+nav a { color: white; text-decoration: none; font-weight: 600; padding: 8px 14px; border-radius: 6px; }
+nav a:hover { background: rgba(255,255,255,.15); }
+nav a.activo { background: white; color: var(--verde); }
+nav .marca { font-size: 1.15rem; margin-right: auto; }
+
+/* ---------- Contenido ---------- */
+main { max-width: 1100px; margin: 30px auto; padding: 0 20px; }
+h1 { color: var(--verde); margin: 0 0 6px; }
+.subtitulo { color: var(--gris); margin: 0 0 25px; }
+h2 { color: var(--verde); margin-top: 35px; font-size: 1.2rem; }
+
+/* ---------- Tablas ---------- */
+table { width: 100%; border-collapse: collapse; background: white; border-radius: 10px; overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0,0,0,.06); }
+th { background: var(--verde-claro); color: var(--verde); text-align: left; padding: 12px 14px;
+     font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; }
+td { padding: 12px 14px; border-top: 1px solid #edf1ec; }
+tr:hover td { background: #fafcf9; }
+
+/* ---------- Botones ---------- */
+button { background: var(--verde); color: white; border: none; padding: 6px 12px; border-radius: 6px;
+         cursor: pointer; margin: 2px; font-weight: 600; }
+button:hover { opacity: .85; }
+button.secundario { background: white; color: var(--verde); border: 1px solid var(--verde); }
+button.peligro { background: #b3261e; }
+
+/* ---------- Etiquetas de estado (el color depende del estado) ---------- */
+.estado { padding: 4px 10px; border-radius: 999px; font-size: .8rem; font-weight: 600; white-space: nowrap; }
+.Disponible, .Listo, .Despachado              { background: #d8efd5; color: #1e5a22; }
+.Reservado, .EnCrecimiento, .ParcialmenteDespachado { background: #fff1c2; color: #7a5a00; }
+.Cancelado, .Vencido, .Agotado, .EnRevision, .Descartado { background: #fbd9d6; color: #8c1d18; }
+.Creado                                       { background: #e3ecfa; color: #1d4b8c; }
+
+/* ---------- Mensaje de los botones ---------- */
+#mensaje { padding: 12px 16px; border-radius: 8px; font-weight: 600; }
+#mensaje:empty { display: none; }
+#mensaje.ok { background: #d8efd5; color: #1e5a22; }
+#mensaje.error { background: #fbd9d6; color: #8c1d18; }
+
+/* ---------- Tarjetas del inicio ---------- */
+.tarjetas { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 18px; }
+.tarjeta { background: white; border-radius: 12px; padding: 22px; text-decoration: none; color: inherit;
+           box-shadow: 0 2px 8px rgba(0,0,0,.06); border-top: 4px solid var(--verde); transition: transform .15s; }
+.tarjeta:hover { transform: translateY(-3px); }
+.tarjeta .numero { font-size: 2.2rem; font-weight: 700; color: var(--verde); }
+.tarjeta .etiqueta { color: var(--gris); }

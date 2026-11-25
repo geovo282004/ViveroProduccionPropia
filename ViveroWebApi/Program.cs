@@ -74,6 +74,10 @@ public class Program
 
         app.UseExceptionHandler();
 
+        // Vistas web: muestra las páginas HTML que están en la carpeta wwwroot.
+        app.UseDefaultFiles();   // si entran a la raíz, abre index.html
+        app.UseStaticFiles();    // permite abrir archivos .html y .css
+
         if (app.Environment.IsDevelopment())
         {
             app.UseSwagger();

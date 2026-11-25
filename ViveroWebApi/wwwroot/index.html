@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Vivero con Producción Propia</title>
+  <link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+  <nav>
+    <a href="index.html" class="marca">🌱 Vivero</a>
+    <a href="productos.html">Productos</a>
+    <a href="lotes.html">Lotes</a>
+    <a href="pedidos.html">Pedidos</a>
+    <a href="/swagger">API</a>
+  </nav>
+n  <main>
+    <h1>Vivero con Producción Propia</h1>
+    <p class="subtitulo">Producción de plantas, venta de insumos y herramientas, y pedidos de clientes.</p>
+
+    <div class="tarjetas">
+      <a class="tarjeta" href="productos.html">
+        <div class="numero" id="numProductos">–</div>
+        <div class="etiqueta">Productos en catálogo</div>
+      </a>
+      <a class="tarjeta" href="lotes.html">
+        <div class="numero" id="numPlantas">–</div>
+        <div class="etiqueta">Plantas listas para vender</div>
+      </a>
+      <a class="tarjeta" href="pedidos.html">
+        <div class="numero" id="numPedidos">–</div>
+        <div class="etiqueta">Pedidos</div>
+      </a>
+      <a class="tarjeta" href="/swagger">
+        <div class="numero">API</div>
+        <div class="etiqueta">Documentación en Swagger</div>
+      </a>
+    </div>
+  </main>
+
+  <script>
+    // Pide los datos a la API y devuelve la lista.
+    async function traer(url) {
+      const respuesta = await fetch(url);
+      return await respuesta.json();
+    }
+
+    async function cargarResumen() {
+      const insumos = await traer("/api/insumos");
+      const herramientas = await traer("/api/herramientas");
+      const especies = await traer("/api/especies");
+      const pedidos = await traer("/api/pedidos");
+
+      // .length = cuántos elementos tiene la lista
+      document.getElementById("numProductos").textContent = insumos.length + herramientas.length + especies.length;
+      // reduce = suma la disponibilidad de todas las especies
+      document.getElementById("numPlantas").textContent = especies.reduce((total, e) => total + e.disponibilidad, 0);
+      document.getElementById("numPedidos").textContent = pedidos.length;
+    }
+
+    cargarResumen();
+  </script>
+</body>
+</html>

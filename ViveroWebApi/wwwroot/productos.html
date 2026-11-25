@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Productos - Vivero</title>
+<link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+  <nav>
+    <a href="index.html" class="marca">🌱 Vivero</a>
+    <a href="productos.html" class="activo">Productos</a>
+    <a href="lotes.html">Lotes</a>
+    <a href="pedidos.html">Pedidos</a>
+  </nav>
+  <main>
+  <h1>Productos</h1>
+  <p class="subtitulo">Insumos, herramientas y plantas del catálogo.</p>
+
+<h2>Insumos</h2>
+<table>
+    <thead><tr><th>Código</th><th>Nombre</th><th>Precio</th><th>Disponibles</th><th>Estado</th></tr></thead>
+    <tbody id="tablaInsumos"></tbody>
+</table>
+
+<h2>Herramientas</h2>
+<table>
+    <thead><tr><th>Código</th><th>Nombre</th><th>Precio</th><th>Disponibles</th><th>Garantía</th></tr></thead>
+    <tbody id="tablaHerramientas"></tbody>
+</table>
+
+<h2>Plantas</h2>
+<table>
+    <thead><tr><th>Código</th><th>Nombre</th><th>Nombre científico</th><th>Disponibles</th><th>Lotes</th></tr></thead>
+    <tbody id="tablaEspecies"></tbody>
+</table>
+
+ </main>
+<script>
+    // Convierte un número a pesos: 17000 -> $17.000
+    const pesos = n => "$" + n.toLocaleString("es-CO");
+
+    // fetch = la página le pide los datos a la API (como un mesero que va a la cocina).
+    // Luego, por cada dato, crea una fila <tr> y la pone en la tabla.
+    async function cargar(url, idTabla, crearFila) {
+    const respuesta = await fetch(url);
+    const datos = await respuesta.json();
+    document.getElementById(idTabla).innerHTML = datos.map(crearFila).join("");
+    }
+
+    cargar("/api/insumos", "tablaInsumos", i =>
+    `<tr><td>${i.codigo}</td><td>${i.nombre}</td><td>${pesos(i.precio)}</td><td>${i.disponibilidad}</td><td>${i.estado}</td></tr>`);
+
+    cargar("/api/herramientas", "tablaHerramientas", h =>
+    `<tr><td>${h.codigo}</td><td>${h.nombre}</td><td>${pesos(h.precio)}</td><td>${h.disponibilidad}</td><td>${h.tieneGarantia ? "Sí" : "No"}</td></tr>`);
+
+    cargar("/api/especies", "tablaEspecies", e =>
+    `<tr><td>${e.codigo}</td><td>${e.nombre}</td><td><i>${e.nombreCientifico}</i></td><td>${e.disponibilidad}</td><td>${e.lotes.length}</td></tr>`);
+  
+</script>
+</body>
+</html>
